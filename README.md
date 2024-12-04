@@ -34,15 +34,15 @@ FROM
 CREATE TABLE IF NOT EXISTS infectious_cases_norm (
 	entity_code_id INT,
     Year INT, 
-    Number_yaws TEXT,
-	polio_cases TEXT,
-	cases_guinea_worm TEXT,
-	Number_rabies TEXT,
-	Number_malaria TEXT,
-	Number_hiv TEXT,
-	Number_tuberculosis TEXT,
-	Number_smallpox TEXT,
-	Number_cholera_cases TEXT,
+    Number_yaws DOUBLE,
+	polio_cases INT,
+	cases_guinea_worm INT,
+	Number_rabies DOUBLE,
+	Number_malaria DOUBLE,
+	Number_hiv DOUBLE,
+	Number_tuberculosis DOUBLE,
+	Number_smallpox DOUBLE,
+	Number_cholera_cases DOUBLE,
     
 PRIMARY KEY (entity_code_id, Year),
 FOREIGN KEY (entity_code_id) REFERENCES entity_code(id)
@@ -69,7 +69,17 @@ FROM
 JOIN
 	entity_code ec
 ON 
-	ic.entity = ec.entity AND ic.code = ec.code;
+	ic.entity = ec.entity AND ic.code = ec.code
+WHERE
+    ic.Number_yaws != ''
+    AND ic.polio_cases != ''
+    AND ic.cases_guinea_worm != ''
+    AND ic.Number_rabies != ''
+    AND ic.Number_malaria != ''
+    AND ic.Number_hiv != ''
+    AND ic.Number_tuberculosis != ''
+    AND ic.Number_smallpox != ''
+    AND ic.Number_cholera_cases != '';
 
 #3. Проаналізуйте дані:
 - Для кожної унікальної комбінації Entity та Code або їх id порахуйте середнє, мінімальне, максимальне значення та суму для атрибута Number_rabies.
