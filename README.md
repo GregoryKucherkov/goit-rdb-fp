@@ -92,8 +92,7 @@ WHERE
 SELECT entity_code_id, avg(Number_rabies) Avg, min(Number_rabies) Min, max(Number_rabies) Max, sum(Number_rabies) Sum
 FROM 
 	infectious_cases_norm
-WHERE 
-	Number_rabies > 0
+ 
 GROUP BY
 	entity_code_id;
 
@@ -113,24 +112,9 @@ GROUP BY
 код:
 USE pandemic;
 
-4.1
-SELECT *, Makedate(Year, 1) AS Date_atribute
-FROM
-  infectious_cases_norm;
-
-4.2
-SELECT *, CURDATE() AS `Current_date`
-FROM
-  infectious_cases_norm;
-
-4.3
-SELECT Year,
-	-- option 1
-    Year(CURDATE()) - Year AS `Date_difference (years)`,
-    -- option 2
-    DATEDIFF(CURDATE(), MAKEDATE(Year, 1)) / 365 AS `Date_difference_2 (years)`
-FROM
-	infectious_cases_norm;
+SELECT Year, 
+    TIMESTAMPDIFF(Year, MAKEDATE(Year, 1), CURDATE())  AS `Date_difference (years)`
+FROM infectious_cases_norm;
 
 #5 Побудуйте власну функцію.
 
@@ -141,25 +125,21 @@ DROP FUNCTION IF EXISTS Years_difference;
 
 DELIMITER //
 
-CREATE FUNCTION Years_difference(input_year INT)
-RETURNS DECIMAL(10, 2)
-DETERMINISTIC
-BEGIN 
-	DECLARE result DECIMAL(10, 2);
-	SET result = DATEDIFF(CURDATE(), MAKEDATE(Year, 1)) / 365;
-    -- Alternative logic for years only difference without fractions
-    -- SET result = Year(CURDATE()) - input_year; 
-    RETURN result;
-END //
+CREATE FUNCTION Years_difference(input_year INT) 
+	RETURNS INT
+	DETERMINISTIC 
+    BEGIN 
+		DECLARE result INT; 
+		SET result = TIMESTAMPDIFF(YEAR, MAKEDATE(input_year, 1), CURDATE()); 
+		RETURN result; 
+    END //
 
 DELIMITER ;
 
-Usage:
-
-SELECT Year, 
-  Years_difference(Year) AS `Date_difference (years)`
-FROM
-  infectious_cases_norm;
+-- Usage
+SELECT `Year`, 
+	Years_difference(Year) AS `Date_difference (years)`
+FROM infectious_cases_norm;
 
 5.2
 Створіть функцію, що рахує кількість захворювань за певний період. Для цього треба поділити кількість захворювань на рік на певне число: 12 — для отримання середньої кількості захворювань на місяць, 4 — на квартал або 2 — на півріччя. Таким чином, функція буде приймати два параметри: кількість захворювань на рік та довільний дільник. Ви також маєте використати її — запустити на даних. Оскільки не всі рядки містять число захворювань, вам необхідно буде відсіяти ті, що не мають чисельного значення (≠ ‘’).
